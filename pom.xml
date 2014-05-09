@@ -117,6 +117,14 @@
             <artifactId>jersey-client</artifactId>
             <version>1.9.1</version>
         </dependency>
+        
+        <!-- we depend on the jenkins credentials plugin -->
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>credentials</artifactId>
+            <version>1.10</version>
+        </dependency>
+                
     </dependencies>
 
     <build>
