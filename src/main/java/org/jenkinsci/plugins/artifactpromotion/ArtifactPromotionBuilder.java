@@ -124,6 +124,8 @@ public class ArtifactPromotionBuilder extends Builder {
 	 */
 	private boolean skipDeletion;
 
+	private @Setter String stageCredentialsId;
+	private @Setter String releaseCredentialsId;
 	/**
 	 * The default constructor. The parameters are injected by jenkins builder
 	 * and are the same as the (private) fields.
@@ -158,8 +160,7 @@ public class ArtifactPromotionBuilder extends Builder {
 	@DataBoundConstructor
 	public ArtifactPromotionBuilder(String groupId, String artifactId, String classifier,
 			String version, String extension, String stagingRepository,
-			String stagingUser, Secret stagingPW, String releaseUser,
-			Secret releasePW, String releaseRepository, String promoterClass,
+			String stageCredentialsId, String releaseCredentialsId, String releaseRepository, String promoterClass,
 			boolean debug, boolean skipDeletion) {
 				
 		this.groupId = groupId;
@@ -168,10 +169,8 @@ public class ArtifactPromotionBuilder extends Builder {
 		this.version = version;
 		this.extension = extension == null ? "jar" : extension;
 		this.stagingRepository = stagingRepository;
-		this.stagingUser = stagingUser;
-		this.stagingPW = stagingPW;
-		this.releaseUser = releaseUser;
-		this.releasePW = releasePW;
+		this.stageCredentialsId = stageCredentialsId;
+		this.releaseCredentialsId = releaseCredentialsId;
 		this.releaseRepository = releaseRepository;
 		this.debug = debug;
 		this.promoterClass = promoterClass;
@@ -427,22 +426,6 @@ public class ArtifactPromotionBuilder extends Builder {
 		return stagingRepository;
 	}
 
-	public String getStagingUser() {
-		return stagingUser;
-	}
-
-	public Secret getStagingPW() {
-		return stagingPW;
-	}
-
-	public String getReleaseUser() {
-		return releaseUser;
-	}
-
-	public Secret getReleasePW() {
-		return releasePW;
-	}
-
 	public String getReleaseRepository() {
 		return releaseRepository;
 	}
@@ -454,6 +437,14 @@ public class ArtifactPromotionBuilder extends Builder {
 	public boolean isSkipDeletion() {
 		return skipDeletion;
 	}
+
+    @Override
+    protected UsernamePasswordCredentials findCredentialsByCredentialsId() {
+        List<UsernamePasswordCredentials> credentials =
+                CredentialsProvider.lookupCredentials(UsernamePasswordCredentials.class, Hudson.getInstance(), ACL.SYSTEM, new DomainRequirement());
+        CredentialsMatcher credentialsIdMatcher = CredentialsMatchers.withId(this.credentialsId);
+        return CredentialsMatchers.firstOrNull(credentials, credentialsIdMatcher);
+    }
 
 	@Override
 	public String toString() {
@@ -474,10 +465,6 @@ public class ArtifactPromotionBuilder extends Builder {
 		builder.append(localRepoLocation);
 		builder.append(", stagingRepository=");
 		builder.append(stagingRepository);
-		builder.append(", stagingUser=");
-		builder.append(stagingUser);
-		builder.append(", releaseUser=");
-		builder.append(releaseUser);
 		builder.append(", releaseRepository=");
 		builder.append(releaseRepository);
 		builder.append(", debug=");
